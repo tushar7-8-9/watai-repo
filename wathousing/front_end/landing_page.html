@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Maps in Flask</title>
+    <style>
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGur8bFOiGEq_aT25bYex1qvoYeDSPxjo&callback=initMap" async defer></script>
+    <script>
 
+
+
+        function initMap() {
+            var centerPoint = { lat: 43.4723, lng: -80.5449 }; // University of Waterloo coordinates
+            var mapOptions = {
+                center: centerPoint,
+                zoom: 15, // Adjust zoom level to fit the desired area
+                styles: [
+                    {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }]
+                    },
+                    {
+                        featureType: "transit",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }]
+                    },
+                    {
+                        featureType: "road",
+                        elementType: "labels.icon",
+                        stylers: [{ visibility: "off" }]
+                    }
+                ]
+            };
+            var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+            // Draw a circle with a 500-meter radius around the central point
+            var circle = new google.maps.Circle({
+                map: map,
+                center: centerPoint,
+                radius: 1000, // Radius in meters
+                fillColor: '#AA0000',
+                fillOpacity: 0.2,
+                strokeColor: '#AA0000',
+                strokeOpacity: 0.8,
+                strokeWeight: 2
+            });
+
+            set_markers(map)
+        }
+
+    function set_markers(map){
+        /*
+            function to declare the markers of buildings we have information for 
+            
+            Updates Needed: have a DB where the data is coming from
+        */
+
+        let markers = new Array ('University of Waterloo', 'Icon 330', 'Society 145')
+        let marker_location = {
+                'University of Waterloo' : { lat: 43.4723, lng: -80.5449 },
+                'Icon 330' : { lat: 43.4757587, lng: -80.5387263 }, 
+                'Society 145' : { lat: 43.4767823, lng: -80.5383641 }   
+            }
+
+        for (let i=0; i < markers.length; i++ ){
+            //Add an interactive marker
+            var marker = new google.maps.Marker({
+                position: marker_location[markers[i]],
+                map: map,
+                title: markers[i]
+            });
+
+            // Create the content for the InfoWindow
+            ////////////////////////these needs to a funtion//////////////
+            var infoContent = `<div><h3>${markers[i]}</h3><p>Some additional information about ${markers[i]}</p></div>`;
+
+            // Create a new InfoWindow
+            var infoWindow = new google.maps.InfoWindow({
+                content: infoContent
+            });
+
+            // Add a click listener to the marker to open the InfoWindow
+            google.maps.event.addListener(marker, 'click', (function(marker, infoWindow) {
+                return function() {
+                    infoWindow.open(map, marker);
+                };
+            })(marker, infoWindow));
+        }
+
+    }
+
+
+    
+    </script>
+</head>
+<body>
+    <div id="map"></div>
+</body>
+</html>
